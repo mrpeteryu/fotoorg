@@ -60,7 +60,10 @@ namespace fotoorg
                     // exif data may be missing
                 }
             }
-            return fi.CreationTime;
+
+            return fi.CreationTime < fi.LastWriteTime 
+                    ? fi.CreationTime 
+                    : fi.LastWriteTime;
         }
     }
 }
