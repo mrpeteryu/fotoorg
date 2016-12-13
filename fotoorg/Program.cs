@@ -16,7 +16,11 @@ namespace fotoorg
                 return;
             }
 
-            new fotoorg(options.SourcePath, options.TargetPath, options.Move).Start();
+            var fotoorg = new fotoorg(options.SourcePath, options.TargetPath);
+            fotoorg.OnBeforeFileCopy += (e, o) => Console.Write(e);
+            fotoorg.OnAfterFileCopy += (e, o) => Console.WriteLine(e);
+
+            fotoorg.Start(options.Move);
         }
     }
 }

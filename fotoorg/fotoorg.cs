@@ -8,12 +8,19 @@ namespace fotoorg
 {
     public class fotoorg
     {
-        string source;
-        string target;
-        bool moveFiles;
-        Parser parser = new Parser();
+        public string Source { get; private set; }
+        public string Target { get; private set; }
+        private bool _moveFiles = false;
+        private Parser _parser = new Parser();
 
-        public fotoorg(string source, string target, bool moveFiles = false)
+        public event EventHandler OnBeforeFileCopy;
+        public event EventHandler OnAfterFileCopy;
+        public event EventHandler OnError;
+
+        /// <summary>
+        /// Constructor
+        /// </summary>        
+        public fotoorg(string source, string target)
         {
             if (!Directory.Exists(source))
                 throw new DirectoryNotFoundException(source);
@@ -21,29 +28,49 @@ namespace fotoorg
             if (!Directory.Exists(target))
                 Directory.CreateDirectory(target);
 
-            this.source = source;
-            this.target = target;
-            this.moveFiles = moveFiles;
+            Source = source;
+            Target = target;
         }
 
-        public void Start()
+        public void Start(bool moveFiles = false)
         {
+            _moveFiles = moveFiles;
+
             var files = Directory
-                            .EnumerateFiles(source, "*.*", SearchOption.AllDirectories)
+                            .EnumerateFiles(Source, "*.*", SearchOption.AllDirectories)
                             .Select(fileName => new FileInfo(fileName));
 
             int counter = 1;
             int totalFiles = files.Count();
-            
+
             foreach (var file in files)
             {
-                Console.Write($"Copying File {file.Name} ({counter}/{totalFiles})");
+                NotifyOnBeforeFileCopy($"Copying File {file.Name} ({counter}/{totalFiles})");
                 Distribute(file);
                 counter++;
             }
         }
 
-        public void Distribute(FileInfo fi)
+        #region Private Methods
+        private void NotifyOnBeforeFileCopy(string msg)
+        {
+            if (OnBeforeFileCopy != null)
+                OnBeforeFileCopy(msg, EventArgs.Empty);
+        }
+
+        private void NotifyOnAfterFileCopy(string msg)
+        {
+            if (OnAfterFileCopy != null)
+                OnAfterFileCopy(msg, EventArgs.Empty);
+        }
+
+        private void NotifyOnError(string error)
+        {
+            if (OnError != null)
+                OnError(error, EventArgs.Empty);
+        }
+
+        private void Distribute(FileInfo fi)
         {
             string target = GetTargetFullName(fi);
             bool isCopied = false;
@@ -52,10 +79,10 @@ namespace fotoorg
             {
                 File.Copy(fi.FullName, target, true);
                 Console.WriteLine($" to {target}");
-                isCopied = true;    
+                isCopied = true;
             });
 
-            if (moveFiles)
+            if (_moveFiles)
             {
                 if (isCopied)
                 {
@@ -63,15 +90,15 @@ namespace fotoorg
                 }
                 else
                 {
-                    Console.WriteLine($"Unable to delete: {fi.Name}");
+                    NotifyOnError($"Unable to delete: {fi.Name}");
                 }
             }
         }
 
-        public string GetTargetFullName(FileInfo fi)
+        private string GetTargetFullName(FileInfo fi)
         {
             var createDate = GetFileTimestamp(fi).ToString("yyyy-MM-dd");
-            var copyToFolder = Path.Combine(target, createDate);
+            var copyToFolder = Path.Combine(Target, createDate);
 
             if (fi.Name.IsVideo())
                 copyToFolder = Path.Combine(copyToFolder, "Videos");
@@ -89,23 +116,24 @@ namespace fotoorg
         /// If file is a photo, the Exif information will be used. 
         /// For all other cases, the Created Date will be used.
         /// </summary>
-        public DateTime GetFileTimestamp(FileInfo fi)
+        private DateTime GetFileTimestamp(FileInfo fi)
         {
             if (fi.Name.IsPhoto())
             {
                 try
                 {
-                    return parser.Parse(fi.FullName)
+                    return _parser.Parse(fi.FullName)
                         .Where(x => x.Title == "ExifDTOrig")
                         .Select(x => Convert.ToDateTime(x.Value.ToString().Substring(0, 10).Replace(":", "-")))
-                        .First();
+                        .Single();
                 }
-                catch(InvalidOperationException)
+                catch (InvalidOperationException)
                 {
-                    Console.WriteLine($"No ExifDTOrig Info for {fi.Name} ; Using Creation Date");
+                    NotifyOnError($"No ExifDTOrig Info for {fi.Name} ; Using Creation Date");
                 }
             }
             return fi.CreationTime;
         }
+        #endregion
     }
 }
