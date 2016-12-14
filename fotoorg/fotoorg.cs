@@ -1,4 +1,5 @@
-﻿using Palmer;
+﻿using fotoorg.Utils;
+using Palmer;
 using photo.exif;
 using System;
 using System.IO;
@@ -78,7 +79,7 @@ namespace fotoorg
 
             Retry.On<FileNotFoundException>().For(5).With((context) =>
             {
-                File.Copy(file.SourceLocation, target, true);
+                FileUtil.PreserveCopy(file.SourceLocation, target, true, true);
                 Console.WriteLine($" to {target}");
                 isCopied = true;
             });
