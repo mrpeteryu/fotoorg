@@ -82,7 +82,7 @@ namespace fotoorg
             Retry.On<FileNotFoundException>().For(5).With((context) =>
             {
                 FileUtil.PreserveCopy(file.SourceLocation, target, _moveFiles, _dateFix);
-                Console.WriteLine($" to {target}");
+                NotifyOnAfterFileCopy($" to {target}");
                 isCopied = true;
             });
 
