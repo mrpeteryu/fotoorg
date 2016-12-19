@@ -11,6 +11,7 @@ namespace fotoorg
     {
         private Parser _parser = new Parser();
         private bool _moveFiles = false;
+        private bool _dateFix = false;
 
         public string Source { get; private set; }
         public string Target { get; private set; }
@@ -34,9 +35,10 @@ namespace fotoorg
             Target = target;
         }
 
-        public void Start(bool moveFiles = false)
+        public void Start(bool moveFiles = false, bool dateFix = false)
         {
             _moveFiles = moveFiles;
+            _dateFix = dateFix;
 
             var files = Directory
                         .EnumerateFiles(Source, "*.*", SearchOption.AllDirectories)
@@ -79,7 +81,7 @@ namespace fotoorg
 
             Retry.On<FileNotFoundException>().For(5).With((context) =>
             {
-                FileUtil.PreserveCopy(file.SourceLocation, target, true, true);
+                FileUtil.PreserveCopy(file.SourceLocation, target, _moveFiles, _dateFix);
                 Console.WriteLine($" to {target}");
                 isCopied = true;
             });
@@ -87,13 +89,9 @@ namespace fotoorg
             if (_moveFiles)
             {
                 if (isCopied)
-                {
                     File.Delete(file.SourceLocation);
-                }
                 else
-                {
                     NotifyOnError($"Unable to delete: {file.SourceLocation}");
-                }
             }
         }
 

@@ -15,5 +15,9 @@ namespace fotoorg
         [Option('m', "move", 
          HelpText = "Performs a move of the file instead of copy.")]
         public bool Move { get; set; }
+
+        [Option('f', "fix",
+         HelpText = "Fix the date to be the earlier of Created Date or Last Write Date.")]
+        public bool FixDate { get; set; }
     }
 }

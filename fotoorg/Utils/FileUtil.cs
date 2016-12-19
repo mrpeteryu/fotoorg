@@ -4,7 +4,7 @@ namespace fotoorg.Utils
 {
     class FileUtil
     {
-        public static void PreserveCopy(string copyFromPath, string copyToPath, bool overwrite = false, bool applyTimestampSyncFix = false)
+        public static void PreserveCopy(string copyFromPath, string copyToPath, bool overwrite = false, bool applyDateFix = false)
         {
             var origin = new FileInfo(copyFromPath);
             origin.CopyTo(copyToPath, overwrite);
@@ -19,12 +19,12 @@ namespace fotoorg.Utils
                 : origin.LastWriteTime;
 
             // Apply Timestamp Fix to Created Date?
-            destination.CreationTime = applyTimestampSyncFix
+            destination.CreationTime = applyDateFix
                 ? originalFileTime
                 : origin.CreationTime;
 
             // Apply Timestamp Fix to Last Write Date?
-            destination.LastWriteTime = applyTimestampSyncFix 
+            destination.LastWriteTime = applyDateFix 
                 ? originalFileTime
                 : origin.LastWriteTime;
 
