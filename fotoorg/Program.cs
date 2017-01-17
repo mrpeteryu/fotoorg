@@ -22,7 +22,7 @@ namespace fotoorg
             fotoorg.OnBeforeFileCopy += (e, o) => Console.Write(e);
             fotoorg.OnAfterFileCopy += (e, o) => Console.WriteLine(e);
 
-            fotoorg.Start(options.Move);
+            fotoorg.Start(options.Move, cleanEmptyDir:options.Clean);
         }
 
         static void DisplayUsage()

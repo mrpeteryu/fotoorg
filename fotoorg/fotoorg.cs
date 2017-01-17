@@ -35,11 +35,19 @@ namespace fotoorg
             Target = target;
         }
 
-        public void Start(bool moveFiles = false, bool dateFix = false)
+        /// <summary>
+        /// Begins the job to process the media files
+        /// </summary>
+        public void Start(bool moveFiles = false, bool dateFix = false, bool cleanEmptyDir = false)
         {
             _moveFiles = moveFiles;
             _dateFix = dateFix;
 
+            // Remove empty folders before processing
+            if (cleanEmptyDir)
+                RemoveEmptyDirs(Source);
+
+            // Get list of all the files to process
             var files = Directory
                         .EnumerateFiles(Source, "*.*", SearchOption.AllDirectories)
                         .Select(fileName => new FileInfo(fileName));
@@ -50,12 +58,24 @@ namespace fotoorg
             foreach (var file in files)
             {
                 NotifyOnBeforeFileCopy($"Processing file: {file.Name} ({counter}/{totalFiles})");
-                Distribute(new FileItem(file));
+                DistributeFile(new FileItem(file));
                 counter++;
             }
         }
 
         #region Private Methods
+        /// <summary>
+        /// Purge empty folders
+        /// </summary>
+        private void RemoveEmptyDirs(string source)
+        {
+            Directory.GetDirectories(source).ToList().ForEach(x =>
+            {
+                if (Directory.GetFiles(x).Count() == 0 && x != Path.GetPathRoot(x))
+                    Directory.Delete(x);
+            });          
+        }
+
         private void NotifyOnBeforeFileCopy(string msg)
         {
             if (OnBeforeFileCopy != null)
@@ -74,7 +94,7 @@ namespace fotoorg
                 OnError(error, EventArgs.Empty);
         }
 
-        private void Distribute(FileItem file)
+        private void DistributeFile(FileItem file)
         {
             string target = GetTargetFullPath(file);
             bool isCopied = false;
@@ -110,7 +130,6 @@ namespace fotoorg
 
             return Path.Combine(targetFolderPath, file.Filename);
         }
-        
         #endregion
     }
 }

@@ -19,5 +19,9 @@ namespace fotoorg
         [Option('d', "datefix",
          HelpText = "Fix the date to be the earlier of Created Date or Last Write Date.")]
         public bool FixDate { get; set; }
+
+        [Option('c', "clean",
+         HelpText = "Remove Empty Folders")]
+        public bool Clean { get; set; }
     }
 }
