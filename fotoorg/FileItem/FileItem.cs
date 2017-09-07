@@ -1,4 +1,5 @@
-﻿using photo.exif;
+﻿using fotoorg.Utils;
+using photo.exif;
 using System;
 using System.IO;
 using System.Linq;
@@ -59,11 +60,12 @@ namespace fotoorg
                 {
                     // exif data may be missing
                 }
+                catch(FormatException)
+                {
+                }
             }
 
-            return fi.CreationTime < fi.LastWriteTime 
-                    ? fi.CreationTime 
-                    : fi.LastWriteTime;
+            return FileUtil.GetDateTimeFromPhysicalFile(fi);
         }
     }
 }

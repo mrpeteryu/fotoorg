@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 
 namespace fotoorg.Utils
 {
@@ -33,5 +34,14 @@ namespace fotoorg.Utils
             if (origin.IsReadOnly)
                 destination.IsReadOnly = true;
         }
+
+        /// <summary>
+        /// Returns the earlier of the Created Timestamp or the Last Write Timestamp
+        /// </summary>
+        public static DateTime GetDateTimeFromPhysicalFile(FileInfo fi)
+            => fi.CreationTime < fi.LastWriteTime
+                ? fi.CreationTime
+                : fi.LastWriteTime;
+
     }
 }
