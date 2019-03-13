@@ -4,24 +4,24 @@ fotoorg is a lightweight utility to assist with organizing your photos and video
 ## Usage
 Run *fotoorg.exe*
 
-Foto Org Options
+#### Foto Org Options
 
-###Required Arguments:
-```
+#### Required Arguments:
+
 The source path containing the photos/videos to process.   
         *-s*, *-source* {SourcePath}  
   
 The target path to put the processed files into.  
         *-t*, *-target* {TargetPath}  
   
-###Optional Arguments:  
+#### Optional Arguments:  
 Move Files - The files path in the source path will be removed after being it is processed.  
         *-m*, *-move*  
   
 Date Fix - The earlier date of the two (Created Date or Last Write Date) will be use as the date for the all target files.  
         *-d*, *-datefix*  
         
-```
+
 
 ## Examples:
 
