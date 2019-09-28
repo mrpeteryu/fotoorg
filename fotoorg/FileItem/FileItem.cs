@@ -63,6 +63,10 @@ namespace fotoorg
                 catch(FormatException)
                 {
                 }
+                catch(ArgumentException)
+                {
+                    // heic not supported
+                }
             }
 
             return FileUtil.GetDateTimeFromPhysicalFile(fi);
